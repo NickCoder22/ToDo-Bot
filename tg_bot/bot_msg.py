@@ -1,6 +1,7 @@
 
 import asyncio
 import logging
+from token_reading import bot
 from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from datetime import datetime
