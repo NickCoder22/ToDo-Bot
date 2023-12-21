@@ -1,3 +1,3 @@
 .python-version
 db.cfg
-wheels
+__pycache__
