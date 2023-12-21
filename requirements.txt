@@ -1,1 +1,2 @@
-abacaba
+maturin==1.4.0
+surrealdb==0.3.2
