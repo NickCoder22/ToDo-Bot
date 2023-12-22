@@ -5,7 +5,7 @@ from token_reading import bot
 from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from datetime import datetime
-from action_with_todo import mark_as_done
+from action_with_todo import *
 logging.basicConfig(level=logging.INFO)
 router = Router()
 async def print_msg(text, chat_id):
@@ -34,7 +34,7 @@ async def button_mark_as_done(callback: types.CallbackQuery):
 @router.callback_query(F.data[:5] == "defer")
 async def button_defer(callback: types.CallbackQuery):
     todo_id = callback.data[5:]
-    # await defer()
+    await defer(todo_id)
     await callback.message.answer("Отложено")
     await callback.answer()
 

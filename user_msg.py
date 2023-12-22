@@ -38,14 +38,14 @@ async def cmd_get_list(message: types.Message):
 async def cmd_get_report(message: types.Message):
     chat_id = message.from_user.id
     await bot.send_message(chat_id, "Ваш отчёт:")
-    # await get_remort(chat_id)
+    # await get_report(chat_id)
 
 @router.message(F.text)
 
-async def read_to_do(message: Message, bot: Bot):
+async def read_to_do(message: Message, bot: Bot, database):
     chat_id = message.from_user.id
     create_time = datetime.now()
     #await create_to_do(message.text, chat_id, create_time)
-    await create_new_job(message.text, chat_id)
+    await create_new_job(message.text, chat_id, database)
     await message.answer("Todo создана")
 
