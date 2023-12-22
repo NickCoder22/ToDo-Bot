@@ -51,9 +51,10 @@ async def get_report(db, chat, first_deadline, second_deadline):
     })
     return res[0]['result']
 
+address="ws://localhost:8000/rpc"
+database = Surreal(address)
 
-async def connect(address,user,passwd,ns,db):
-    database = Surreal(address)
+async def connect(user,passwd,ns,db):
     await database.connect()
     await database.signin({"user": user, "pass": passwd})
     await database.use(ns, db)
