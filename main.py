@@ -26,11 +26,10 @@ class Middleware(BaseMiddleware):
         return await handler(event, data)
 
 async def main():
-    # dbcfg = open("db.cfg")
-    # address, user, passwd, ns, db = dbcfg.readline().split()
+    dbcfg = open("db.cfg")
+    address, user, passwd, ns, db = dbcfg.readline().split()
     sched.start()
-    # db = await connect(user, passwd, ns, db)
-    db = "db"
+    db = await connect(address, user, passwd, ns, db)
     dp = Dispatcher()
     dp.include_routers(user_msg.router, bot_msg.router)
     user_msg.router.message.middleware(Middleware(database=db))
