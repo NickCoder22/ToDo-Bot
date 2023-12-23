@@ -14,9 +14,14 @@ logging.basicConfig(level=logging.INFO)
 
 class Middleware(BaseMiddleware):
     def __init__(self, database):
+        super().__init__()
         self._database = database
-
-    async def __call__(self,handler,event,data):
+    async def __call__(
+            self,
+            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+            event: TelegramObject,
+            data: Dict[str, Any],
+    ) -> Any:
         data["database"] = self._database
         return await handler(event, data)
 
@@ -30,6 +35,8 @@ async def main():
     dp.include_routers(user_msg.router, bot_msg.router)
     user_msg.router.message.middleware(Middleware(database=db))
     bot_msg.router.message.middleware(Middleware(database=db))
+    user_msg.router.callback_query.middleware(Middleware(database=db))
+    bot_msg.router.callback_query.middleware(Middleware(database=db))
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
