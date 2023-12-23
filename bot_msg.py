@@ -11,7 +11,7 @@ router = Router()
 async def print_msg(text, chat_id):
     await bot.send_message(chat_id, text)
 
-async def ping(text, chat_id, todo_id):
+async def ping(text, chat_id, todo_id, database):
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(
         text="Сделано",
@@ -51,15 +51,15 @@ async def print_todo_of_list(text, chat_id, todo_id):
     await bot.send_message(chat_id, text, reply_markup=builder.as_markup())
 
 @router.callback_query(F.data[:4] == "done")
-async def button_mark_as_done(callback: types.CallbackQuery):
+async def button_mark_as_done_list(callback: types.CallbackQuery):
     todo_id = callback.data[4:]
-    # await mark_as_done(todo_id)
+    await mark_as_done(todo_id)
     await callback.message.answer("Отличная работа, задача выполнена")
     await callback.answer()
 
 @router.callback_query(F.data[:6] == "delete")
-async def button_defer(callback: types.CallbackQuery):
+async def button_delete(callback: types.CallbackQuery):
     todo_id = callback.data[6:]
-    # await defer(todo_id)
+    await delete(todo_id)
     await callback.message.answer("Удалено")
     await callback.answer()

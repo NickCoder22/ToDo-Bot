@@ -83,7 +83,7 @@ CONFIG_CHAT = dict()
 # }
 
 def simple_create_todo(chat_id, problem, deadline, next_ping, next_ping_delta):
-    todo_id = chat_id + "@" +  problem
+    todo_id = str(chat_id) + "@" +  problem
     TODO_LIST[todo_id] = {
         "chat_id": chat_id,
         "problem": problem,

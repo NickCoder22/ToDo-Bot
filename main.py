@@ -14,11 +14,9 @@ logging.basicConfig(level=logging.INFO)
 
 class Middleware(BaseMiddleware):
     def __init__(self, database):
-        super().__init__()
         self._database = database
 
     async def __call__(self,handler,event,data):
-        # прокидываем в словарь состояния scheduler
         data["database"] = self._database
         return await handler(event, data)
 
