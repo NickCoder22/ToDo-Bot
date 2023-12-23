@@ -42,8 +42,8 @@ async def get_done_for_report(db, chat):
     res = await db.query('''
     BEGIN TRANSACTION;
 
-    DELETE todo WHERE done = true AND done_time < time::now() - 7d;
-    SELECT problem FROM todo WHERE chat = $chat AND done = true;
+    DELETE todo WHERE done AND done_time < time::now() - 7d;
+    SELECT problem FROM todo WHERE chat = $chat AND done;
 
     COMMIT TRANSACTION;
     ''', {
@@ -73,7 +73,7 @@ async def connect(address,user,passwd,ns,db):
     DEFAULT false;
     ''')
     await database.query('''
-    DEFINE EVENT done_time ON TABLE todo WHEN $before.done = false AND $after.done = true THEN (
+    DEFINE EVENT done_time ON TABLE todo WHEN $before.done = false AND $after.done THEN (
         UPDATE $after.id MERGE {
             done_time: time::now()
         }
