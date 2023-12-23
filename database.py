@@ -1,26 +1,26 @@
 from surrealdb import Surreal
 
-async def create(db, chat, problem, deadline):
+async def create(db, chat, problem, delta):
     res = await db.create(
-        "todo",
+        'todo',
         {
-            "chat": chat,
-            "problem": problem,
-            "deadline": str(deadline),
+            'chat': chat,
+            'problem': problem,
+            'delta': str(delta),
         }
     )
-    return res[0]["id"]
+    return res[0]['id']
 
-def edit(db, id, new_problem, new_deadline):
-    return db.query("""
+def edit(db, id, new_problem, new_delta):
+    return db.query('''
     UPDATE $id MERGE {
         problem: $new_problem,
-        deadline: $new_deadline,
+        delta: $new_delta,
     };
-    """, {
+    ''', {
         'id': id,
         'new_problem': new_problem,
-        'new_deadline': str(new_deadline),
+        'new_delta': str(new_delta),
     })
 
 def remove(db, id):
@@ -30,24 +30,32 @@ def get_todo(db, id):
     return db.select(id)
 
 def done(db, id):
-    return db.query("""
+    return db.query('''
     UPDATE $id MERGE {
         done: true
     };
-    """, {
+    ''', {
         'id': id,
     })
 
-async def get_report(db, chat, first_deadline, second_deadline):
-    res = await db.query("""
-    SELECT id, problem, deadline, done FROM todo
-        WHERE chat = $chat
-        AND deadline >= $form
-        AND deadline <= $to
-    """, {
+async def get_done_for_report(db, chat):
+    res = await db.query('''
+    SELECT problem FROM todo
+    WHERE chat = $chat
+    AND done
+    AND done_time >= time::now()-7d
+    ''', {
         'chat': chat,
-        'from': str(first_deadline),
-        'to': str(second_deadline),
+    })
+    return res[0]['result']
+
+async def get_not_done(db, chat):
+    res = await db.query('''
+    SELECT problem FROM todo
+    WHERE chat = $chat
+    AND NOT done
+    ''', {
+        'chat': chat,
     })
     return res[0]['result']
 
@@ -57,8 +65,19 @@ async def get_report(db, chat, first_deadline, second_deadline):
 async def connect(address,user,passwd,ns,db):
     database = Surreal(address)
     await database.connect()
-    await database.signin({"user": user, "pass": passwd})
+    await database.signin({'user': user, 'pass': passwd})
     await database.use(ns, db)
+    await database.query('''
+    DEFINE FIELD done ON TABLE todo
+    DEFAULT false;
+    ''')
+    await database.query('''
+    DEFINE EVENT done_time ON TABLE todo WHEN NOT $before.done AND $after.done THEN (
+        UPDATE $after.id MERGE {
+            done_time: time::now()
+        }
+    );
+    ''')
     return database
 
 
